@@ -28,14 +28,18 @@ sealed interface AmphibianUiState {
 class AmphibianViewModel(
     private val amphibianRepository: AmphibianRepository
 ) : ViewModel() {
+
     private val _amphibianUiState = MutableStateFlow<AmphibianUiState>(AmphibianUiState.Loading)
     val amphibianUiState: StateFlow<AmphibianUiState> = _amphibianUiState.asStateFlow()
+
+//    var amphibianUiState: AmphibianUiState by mutableStateOf(AmphibianUiState.Loading) // Loading is default value
+//        private set
 
     init {
         getAmphibians()
     }
 
-    private fun getAmphibians() {
+    fun getAmphibians() {
         viewModelScope.launch {
             _amphibianUiState.value = try {
                 AmphibianUiState.Success(amphibianRepository.getAmphibians())
@@ -44,13 +48,14 @@ class AmphibianViewModel(
             }
         }
     }
-companion object {
-    val Factory: ViewModelProvider.Factory = viewModelFactory {
-        initializer {
-            val application = (this[APPLICATION_KEY] as AmphibianApplication)
-            val amphibianRepository = application.container.amphibianRepository
-            AmphibianViewModel(amphibianRepository = amphibianRepository)
+
+    companion object {
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val application = (this[APPLICATION_KEY] as AmphibianApplication)
+                val amphibianRepository = application.container.amphibianRepository
+                AmphibianViewModel(amphibianRepository = amphibianRepository)
+            }
         }
     }
-}
 }
